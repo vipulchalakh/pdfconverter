@@ -9,8 +9,9 @@ from werkzeug.utils import secure_filename
 from PIL import Image
 from fpdf import FPDF
 
-UPLOAD_FOLDER = 'uploads'
-PDF_FOLDER = 'generated_pdfs'
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
+PDF_FOLDER = os.path.join(BASE_DIR, 'generated_pdfs')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 MAX_IMAGES = 10
 MAX_CONTENT_LENGTH = 10 * 1024 * 1024  # 10MB
