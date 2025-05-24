@@ -1,13 +1,9 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 /* Custom button color */
 .btn-green {
   @apply bg-[#009b6c] hover:bg-[#007456] text-white font-bold px-8 py-4 rounded-xl shadow-lg text-lg transition;
 }
 
-/* Loader spinner */
+/* Custom loader spinner */
 .loader {
   border-top-color: #009b6c;
   animation: spinner 1s linear infinite;
