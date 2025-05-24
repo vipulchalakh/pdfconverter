@@ -12,37 +12,44 @@ const customSizeFields = document.getElementById('customSizeFields');
 const pageSizeSelect = document.getElementById('pageSize');
 const convertBtn = document.getElementById('convertBtn');
 
+// Basic element checks
+if (!uploadBtn || !imageInput || !initialSection || !appSection || !loaderSection || !successSection || !imageList || !addMoreBtn || !optionsForm || !downloadPdfBtn || !customSizeFields || !pageSizeSelect || !convertBtn) {
+  console.error('One or more required DOM elements not found!');
+  // Optionally, display a user-friendly error message or disable functionality
+}
+
 let uploadedImages = [];
 let uploadedFilenames = [];
 let draggingIndex = null;
 let uploadInProgress = false;
 
 function showInitial() {
-  initialSection.classList.remove('hidden');
-  appSection.classList.add('hidden');
-  loaderSection.classList.add('hidden');
-  successSection.classList.add('hidden');
+  if (initialSection) initialSection.classList.remove('hidden');
+  if (appSection) appSection.classList.add('hidden');
+  if (loaderSection) loaderSection.classList.add('hidden');
+  if (successSection) successSection.classList.add('hidden');
 }
 function showApp() {
-  initialSection.classList.add('hidden');
-  appSection.classList.remove('hidden');
-  loaderSection.classList.add('hidden');
-  successSection.classList.add('hidden');
+  if (initialSection) initialSection.classList.add('hidden');
+  if (appSection) appSection.classList.remove('hidden');
+  if (loaderSection) loaderSection.classList.add('hidden');
+  if (successSection) successSection.classList.add('hidden');
 }
 function showLoader() {
-  initialSection.classList.add('hidden');
-  appSection.classList.add('hidden');
-  loaderSection.classList.remove('hidden');
-  successSection.classList.add('hidden');
+  if (initialSection) initialSection.classList.add('hidden');
+  if (appSection) appSection.classList.add('hidden');
+  if (loaderSection) loaderSection.classList.remove('hidden');
+  if (successSection) successSection.classList.add('hidden');
 }
 function showSuccess(pdfUrl) {
-  initialSection.classList.add('hidden');
-  appSection.classList.add('hidden');
-  loaderSection.classList.add('hidden');
-  successSection.classList.remove('hidden');
-  downloadPdfBtn.href = pdfUrl;
+  if (initialSection) initialSection.classList.add('hidden');
+  if (appSection) appSection.classList.add('hidden');
+  if (loaderSection) loaderSection.classList.add('hidden');
+  if (successSection) successSection.classList.remove('hidden');
+  if (downloadPdfBtn) downloadPdfBtn.href = pdfUrl;
 }
 function setConvertEnabled(enabled) {
+  if (!convertBtn) return;
   if (enabled) {
     convertBtn.disabled = false;
     convertBtn.classList.remove('opacity-50', 'cursor-not-allowed');
@@ -52,6 +59,7 @@ function setConvertEnabled(enabled) {
   }
 }
 function renderThumbnails() {
+  if (!imageList) return;
   imageList.innerHTML = '';
   uploadedImages.forEach((img, idx) => {
     const li = document.createElement('li');
@@ -107,6 +115,10 @@ function renderThumbnails() {
   });
 }
 function handleFiles(files) {
+  if (!files || files.length === 0) {
+    alert('No files selected.');
+    return;
+  }
   if (files.length + uploadedImages.length > 10) {
     alert('Max 10 images allowed.');
     return;
@@ -122,6 +134,9 @@ function handleFiles(files) {
   // Show app section immediately with previews
   uploadedImages = [];
   let loaded = 0;
+  showApp(); // Show app section right away
+  setConvertEnabled(false); // Disable convert button until upload is done
+
   for (let i = 0; i < files.length; i++) {
     const reader = new FileReader();
     reader.onload = e => {
@@ -129,8 +144,6 @@ function handleFiles(files) {
       loaded++;
       if (loaded === files.length) {
         renderThumbnails();
-        showApp();
-        setConvertEnabled(false);
       }
     };
     reader.readAsDataURL(files[i]);
@@ -157,69 +170,82 @@ function handleFiles(files) {
       alert('Upload failed.');
     });
 }
-uploadBtn.onclick = () => imageInput.click();
-addMoreBtn.onclick = () => imageInput.click();
-imageInput.onchange = e => {
-  if (e.target.files.length > 0) {
-    handleFiles(e.target.files);
-    imageInput.value = '';
-  }
-};
-optionsForm.onsubmit = e => {
-  e.preventDefault();
-  if (uploadInProgress) {
-    alert('Please wait for images to finish uploading.');
-    return;
-  }
-  if (uploadedFilenames.length === 0) {
-    alert('No images uploaded.');
-    return;
-  }
-  // Gather options
-  const form = new FormData(optionsForm);
-  const options = {
-    orientation: form.get('orientation'),
-    page_size: form.get('page_size'),
-    margin: form.get('margin'),
+
+if (uploadBtn && imageInput) {
+  uploadBtn.onclick = () => imageInput.click();
+  imageInput.onchange = e => {
+    if (e.target.files.length > 0) {
+      handleFiles(e.target.files);
+      imageInput.value = '';
+    }
   };
-  if (options.page_size === 'Custom') {
-    options.custom_width = form.get('custom_width');
-    options.custom_height = form.get('custom_height');
-    if (!options.custom_width || !options.custom_height) {
-      alert('Enter custom width and height.');
+}
+
+if (addMoreBtn && imageInput) {
+  addMoreBtn.onclick = () => imageInput.click();
+}
+
+if (optionsForm) {
+  optionsForm.onsubmit = e => {
+    e.preventDefault();
+    if (uploadInProgress) {
+      alert('Please wait for images to finish uploading.');
       return;
     }
-  }
-  showLoader();
-  fetch('/generate-pdf', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({filenames: uploadedFilenames, options})
-  })
-    .then(res => res.json())
-    .then(data => {
-      if (data.error) {
-        showApp();
-        alert(data.error);
+    if (uploadedFilenames.length === 0) {
+      alert('No images uploaded.');
+      return;
+    }
+    // Gather options
+    const form = new FormData(optionsForm);
+    const options = {
+      orientation: form.get('orientation'),
+      page_size: form.get('page_size'),
+      margin: form.get('margin'),
+    };
+    if (options.page_size === 'Custom') {
+      options.custom_width = form.get('custom_width');
+      options.custom_height = form.get('custom_height');
+      if (!options.custom_width || !options.custom_height) {
+        alert('Enter custom width and height.');
         return;
       }
-      setTimeout(() => {
-        showSuccess(data.pdf_url);
-      }, 1200); // Simulate processing for better UX
+    }
+    showLoader();
+    fetch('/generate-pdf', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({filenames: uploadedFilenames, options})
     })
-    .catch(() => {
-      showApp();
-      alert('PDF generation failed.');
-    });
-};
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) {
+          showApp();
+          alert(data.error);
+          return;
+        }
+        setTimeout(() => {
+          showSuccess(data.pdf_url);
+        }, 1200); // Simulate processing for better UX
+      })
+      .catch(() => {
+        showApp();
+        alert('PDF generation failed.');
+      });
+  };
+}
+
 // Show/hide custom size fields
-pageSizeSelect.onchange = e => {
-  if (e.target.value === 'Custom') {
-    customSizeFields.classList.remove('hidden');
-  } else {
-    customSizeFields.classList.add('hidden');
-  }
-};
+if (pageSizeSelect) {
+  pageSizeSelect.onchange = e => {
+    if (e.target.value === 'Custom') {
+      if (customSizeFields) customSizeFields.classList.remove('hidden');
+    } else {
+      if (customSizeFields) customSizeFields.classList.add('hidden');
+    }
+  };
+}
+
 // Download PDF and reset app after download
 if (downloadPdfBtn) {
   downloadPdfBtn.onclick = function(e) {
@@ -228,6 +254,7 @@ if (downloadPdfBtn) {
     }, 1000);
   };
 }
+
 window.addEventListener('DOMContentLoaded', () => {
   showInitial();
   renderThumbnails();
