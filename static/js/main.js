@@ -109,6 +109,7 @@ function handleFiles(files) {
     formData.append('images', files[i]);
   }
   showLoader();
+  // Upload images to server
   fetch('/upload-images', {
     method: 'POST',
     body: formData
@@ -120,8 +121,9 @@ function handleFiles(files) {
         alert(data.error);
         return;
       }
-      // Preview images
+      // Preview images (client-side)
       let loaded = 0;
+      uploadedImages = [];
       for (let i = 0; i < files.length; i++) {
         const reader = new FileReader();
         reader.onload = e => {
@@ -129,12 +131,14 @@ function handleFiles(files) {
           loaded++;
           if (loaded === files.length) {
             renderThumbnails();
-            showApp();
           }
         };
         reader.readAsDataURL(files[i]);
       }
-      uploadedFilenames.push(...data.filenames);
+      uploadedFilenames = data.filenames;
+      setTimeout(() => {
+        showApp();
+      }, 400); // Short delay for smooth transition
     })
     .catch(() => {
       showInitial();
@@ -200,10 +204,9 @@ pageSizeSelect.onchange = e => {
     customSizeFields.classList.add('hidden');
   }
 };
-// Download PDF
+// Download PDF and reset app after download
 if (downloadPdfBtn) {
   downloadPdfBtn.onclick = function(e) {
-    // Let the browser handle download
     setTimeout(() => {
       window.location.reload();
     }, 1000);
