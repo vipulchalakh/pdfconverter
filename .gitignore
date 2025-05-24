@@ -1,0 +1,4 @@
+venv/
+uploads/
+generated_pdfs/
+__pycache__/ 

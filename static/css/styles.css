@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom button color */
+.btn-green {
+  @apply bg-[#009b6c] hover:bg-[#007456] text-white font-semibold px-6 py-3 rounded-lg shadow transition;
+}
+
+/* Loader spinner */
+.loader {
+  border-top-color: #009b6c;
+  animation: spinner 1s linear infinite;
+}
+@keyframes spinner {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Hide scrollbars for sidebar thumbnails */
+#imageList {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+#imageList::-webkit-scrollbar {
+  display: none;
+} 
