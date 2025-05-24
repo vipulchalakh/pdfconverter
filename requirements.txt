@@ -3,3 +3,4 @@ flask-cors
 Pillow
 fpdf2
 python-dotenv 
+gunicorn 
