@@ -10,10 +10,12 @@ const optionsForm = document.getElementById('optionsForm');
 const downloadPdfBtn = document.getElementById('downloadPdfBtn');
 const customSizeFields = document.getElementById('customSizeFields');
 const pageSizeSelect = document.getElementById('pageSize');
+const convertBtn = document.getElementById('convertBtn');
 
 let uploadedImages = [];
 let uploadedFilenames = [];
 let draggingIndex = null;
+let uploadInProgress = false;
 
 function showInitial() {
   initialSection.classList.remove('hidden');
@@ -39,6 +41,15 @@ function showSuccess(pdfUrl) {
   loaderSection.classList.add('hidden');
   successSection.classList.remove('hidden');
   downloadPdfBtn.href = pdfUrl;
+}
+function setConvertEnabled(enabled) {
+  if (enabled) {
+    convertBtn.disabled = false;
+    convertBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+  } else {
+    convertBtn.disabled = true;
+    convertBtn.classList.add('opacity-50', 'cursor-not-allowed');
+  }
 }
 function renderThumbnails() {
   imageList.innerHTML = '';
@@ -108,8 +119,24 @@ function handleFiles(files) {
     }
     formData.append('images', files[i]);
   }
-  showLoader();
-  // Upload images to server
+  // Show app section immediately with previews
+  uploadedImages = [];
+  let loaded = 0;
+  for (let i = 0; i < files.length; i++) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      uploadedImages.push(e.target.result);
+      loaded++;
+      if (loaded === files.length) {
+        renderThumbnails();
+        showApp();
+        setConvertEnabled(false);
+      }
+    };
+    reader.readAsDataURL(files[i]);
+  }
+  // Start upload in background
+  uploadInProgress = true;
   fetch('/upload-images', {
     method: 'POST',
     body: formData
@@ -121,24 +148,9 @@ function handleFiles(files) {
         alert(data.error);
         return;
       }
-      // Preview images (client-side)
-      let loaded = 0;
-      uploadedImages = [];
-      for (let i = 0; i < files.length; i++) {
-        const reader = new FileReader();
-        reader.onload = e => {
-          uploadedImages.push(e.target.result);
-          loaded++;
-          if (loaded === files.length) {
-            renderThumbnails();
-          }
-        };
-        reader.readAsDataURL(files[i]);
-      }
       uploadedFilenames = data.filenames;
-      setTimeout(() => {
-        showApp();
-      }, 400); // Short delay for smooth transition
+      uploadInProgress = false;
+      setConvertEnabled(true);
     })
     .catch(() => {
       showInitial();
@@ -155,6 +167,10 @@ imageInput.onchange = e => {
 };
 optionsForm.onsubmit = e => {
   e.preventDefault();
+  if (uploadInProgress) {
+    alert('Please wait for images to finish uploading.');
+    return;
+  }
   if (uploadedFilenames.length === 0) {
     alert('No images uploaded.');
     return;
@@ -215,4 +231,5 @@ if (downloadPdfBtn) {
 window.addEventListener('DOMContentLoaded', () => {
   showInitial();
   renderThumbnails();
+  setConvertEnabled(false);
 }); 

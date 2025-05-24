@@ -116,25 +116,27 @@ def generate_pdf():
     pdf = FPDF(orientation='P' if orientation=='Portrait' else 'L', unit='mm', format=size)
     for fname in image_files:
         img_path = os.path.join(UPLOAD_FOLDER, fname)
+        temp_img_path = None
         try:
             with Image.open(img_path) as img:
-                img_format = img.format
                 # Convert to RGB if needed
                 if img.mode != 'RGB':
                     img = img.convert('RGB')
                 temp_img_path = img_path + '_pdf.jpg'
                 img.save(temp_img_path, 'JPEG')
+            pdf.add_page()
+            pdf.image(temp_img_path, x=margin_val, y=margin_val, w=size[0]-2*margin_val, h=size[1]-2*margin_val)
+            # Watermark
+            pdf.set_font('Arial', '', 8)
+            pdf.set_text_color(180, 180, 180)
+            pdf.set_y(size[1] - 8)
+            pdf.set_x(0)
+            pdf.cell(size[0], 8, 'imagepdfconverter.in', align='C')
         except Exception as e:
-            return jsonify({'error': f'Error processing image {fname}: {str(e)}'}), 400
-        pdf.add_page()
-        pdf.image(temp_img_path, x=margin_val, y=margin_val, w=size[0]-2*margin_val, h=size[1]-2*margin_val)
-        # Watermark
-        pdf.set_font('Arial', '', 8)
-        pdf.set_text_color(180, 180, 180)
-        pdf.set_y(size[1] - 8)
-        pdf.set_x(0)
-        pdf.cell(size[0], 8, 'imagepdfconverter.in', align='C')
-        os.remove(temp_img_path)
+            continue
+        finally:
+            if temp_img_path and os.path.exists(temp_img_path):
+                os.remove(temp_img_path)
     pdf_id = uuid.uuid4().hex
     pdf_filename = f'{pdf_id}.pdf'
     pdf_path = os.path.join(PDF_FOLDER, pdf_filename)
