@@ -1,14 +1,13 @@
 const uploadBtn = document.getElementById('uploadBtn');
 const imageInput = document.getElementById('imageInput');
+const initialSection = document.getElementById('initialSection');
+const appSection = document.getElementById('appSection');
+const loaderSection = document.getElementById('loaderSection');
+const successSection = document.getElementById('successSection');
 const imageList = document.getElementById('imageList');
 const addMoreBtn = document.getElementById('addMoreBtn');
-const optionsPanel = document.getElementById('optionsPanel');
 const optionsForm = document.getElementById('optionsForm');
-const convertBtn = document.getElementById('convertBtn');
-const loader = document.getElementById('loader');
-const successPanel = document.getElementById('successPanel');
 const downloadPdfBtn = document.getElementById('downloadPdfBtn');
-const uploadSection = document.getElementById('uploadSection');
 const customSizeFields = document.getElementById('customSizeFields');
 const pageSizeSelect = document.getElementById('pageSize');
 
@@ -16,31 +15,36 @@ let uploadedImages = [];
 let uploadedFilenames = [];
 let draggingIndex = null;
 
-function showOptionsPanel() {
-  optionsPanel.classList.remove('translate-x-full');
+function showInitial() {
+  initialSection.classList.remove('hidden');
+  appSection.classList.add('hidden');
+  loaderSection.classList.add('hidden');
+  successSection.classList.add('hidden');
 }
-function hideOptionsPanel() {
-  optionsPanel.classList.add('translate-x-full');
+function showApp() {
+  initialSection.classList.add('hidden');
+  appSection.classList.remove('hidden');
+  loaderSection.classList.add('hidden');
+  successSection.classList.add('hidden');
 }
 function showLoader() {
-  loader.classList.remove('hidden');
+  initialSection.classList.add('hidden');
+  appSection.classList.add('hidden');
+  loaderSection.classList.remove('hidden');
+  successSection.classList.add('hidden');
 }
-function hideLoader() {
-  loader.classList.add('hidden');
-}
-function showSuccessPanel(pdfUrl) {
-  successPanel.classList.remove('hidden');
+function showSuccess(pdfUrl) {
+  initialSection.classList.add('hidden');
+  appSection.classList.add('hidden');
+  loaderSection.classList.add('hidden');
+  successSection.classList.remove('hidden');
   downloadPdfBtn.href = pdfUrl;
-  hideOptionsPanel();
-}
-function hideSuccessPanel() {
-  successPanel.classList.add('hidden');
 }
 function renderThumbnails() {
   imageList.innerHTML = '';
   uploadedImages.forEach((img, idx) => {
     const li = document.createElement('li');
-    li.className = 'flex items-center gap-2 bg-white rounded shadow p-2 cursor-move group';
+    li.className = 'flex items-center gap-2 bg-white rounded-xl shadow p-2 cursor-move group';
     li.draggable = true;
     li.dataset.idx = idx;
     // Drag events
@@ -73,18 +77,17 @@ function renderThumbnails() {
     // Thumbnail
     const thumb = document.createElement('img');
     thumb.src = img;
-    thumb.className = 'w-12 h-12 object-cover rounded';
+    thumb.className = 'w-14 h-14 object-cover rounded-lg border border-gray-200';
     // Delete button
     const delBtn = document.createElement('button');
-    delBtn.innerHTML = '<svg class="w-4 h-4 text-red-500 group-hover:opacity-100 opacity-60" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>';
+    delBtn.innerHTML = '<svg class="w-5 h-5 text-red-500 group-hover:opacity-100 opacity-60" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>';
     delBtn.className = 'ml-auto p-1 hover:bg-red-100 rounded';
     delBtn.onclick = () => {
       uploadedImages.splice(idx, 1);
       uploadedFilenames.splice(idx, 1);
       renderThumbnails();
       if (uploadedImages.length === 0) {
-        hideOptionsPanel();
-        uploadSection.classList.remove('hidden');
+        showInitial();
       }
     };
     li.appendChild(thumb);
@@ -112,26 +115,29 @@ function handleFiles(files) {
   })
     .then(res => res.json())
     .then(data => {
-      hideLoader();
       if (data.error) {
+        showInitial();
         alert(data.error);
         return;
       }
       // Preview images
+      let loaded = 0;
       for (let i = 0; i < files.length; i++) {
         const reader = new FileReader();
         reader.onload = e => {
           uploadedImages.push(e.target.result);
-          renderThumbnails();
+          loaded++;
+          if (loaded === files.length) {
+            renderThumbnails();
+            showApp();
+          }
         };
         reader.readAsDataURL(files[i]);
       }
       uploadedFilenames.push(...data.filenames);
-      uploadSection.classList.add('hidden');
-      showOptionsPanel();
     })
     .catch(() => {
-      hideLoader();
+      showInitial();
       alert('Upload failed.');
     });
 }
@@ -172,15 +178,17 @@ optionsForm.onsubmit = e => {
   })
     .then(res => res.json())
     .then(data => {
-      hideLoader();
       if (data.error) {
+        showApp();
         alert(data.error);
         return;
       }
-      showSuccessPanel(data.pdf_url);
+      setTimeout(() => {
+        showSuccess(data.pdf_url);
+      }, 1200); // Simulate processing for better UX
     })
     .catch(() => {
-      hideLoader();
+      showApp();
       alert('PDF generation failed.');
     });
 };
@@ -192,10 +200,16 @@ pageSizeSelect.onchange = e => {
     customSizeFields.classList.add('hidden');
   }
 };
-// Reset on new upload
+// Download PDF
+if (downloadPdfBtn) {
+  downloadPdfBtn.onclick = function(e) {
+    // Let the browser handle download
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
+  };
+}
 window.addEventListener('DOMContentLoaded', () => {
-  hideOptionsPanel();
-  hideLoader();
-  hideSuccessPanel();
+  showInitial();
   renderThumbnails();
 }); 

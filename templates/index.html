@@ -3,41 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image to PDF Converter</title>
+    <title>100% FREE Images to PDF Generator Just For You!</title>
     <link href="/static/css/styles.css" rel="stylesheet">
 </head>
 <body class="bg-white min-h-screen flex flex-col">
     <!-- Header -->
-    <header class="fixed top-0 left-0 w-full bg-white shadow z-20">
-        <div class="max-w-4xl mx-auto px-4 py-4 flex flex-col items-center">
-            <h1 class="text-2xl font-bold text-[#009b6c]">Image to PDF Converter</h1>
-            <p class="text-[#222] text-base mt-1">Convert your images into high-quality PDFs in seconds.</p>
+    <header class="w-full bg-white shadow z-20">
+        <div class="max-w-2xl mx-auto px-4 py-8 flex flex-col items-center">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-[#009b6c] text-center mb-2">100% FREE Images to PDF Generator Just For You!</h1>
+            <p class="text-[#222] text-lg text-center mb-6">Our tool is lifetime FREE, made just for you.</p>
         </div>
     </header>
-    <main class="flex-1 flex flex-col md:flex-row max-w-4xl mx-auto w-full pt-28 pb-16 px-2 md:px-0">
-        <!-- Left Sidebar: Thumbnails -->
-        <aside id="sidebar" class="w-full md:w-1/4 bg-[#f6f6f6] rounded-lg p-4 mr-0 md:mr-6 mb-4 md:mb-0 min-h-[300px] flex flex-col">
-            <div class="flex items-center justify-between mb-2">
-                <span class="font-semibold text-[#222]">Images</span>
-                <button id="addMoreBtn" class="text-xs text-[#009b6c] hover:underline">+ Add More</button>
-            </div>
-            <ul id="imageList" class="flex flex-col gap-2"></ul>
-        </aside>
-        <!-- Main Content: Upload & Options Panel -->
-        <section class="flex-1 flex flex-col items-center justify-center relative">
-            <!-- Upload Button -->
-            <div id="uploadSection" class="flex flex-col items-center justify-center">
-                <input type="file" id="imageInput" accept="image/png, image/jpeg" multiple class="hidden">
-                <button id="uploadBtn" class="bg-[#009b6c] hover:bg-[#007456] text-white font-semibold px-6 py-3 rounded-lg shadow transition">Upload Images</button>
-                <p class="text-sm text-[#222] mt-2">JPG or PNG, up to 10 images, max 10MB total.</p>
-            </div>
-            <!-- Options Panel (slides in) -->
-            <div id="optionsPanel" class="fixed right-0 top-0 h-full w-full md:w-80 bg-[#f6f6f6] shadow-lg p-6 z-30 transform translate-x-full transition-transform duration-300 flex flex-col" style="max-width: 100vw;">
-                <h2 class="text-lg font-bold text-[#222] mb-4">PDF Options</h2>
-                <form id="optionsForm" class="flex flex-col gap-4 flex-1">
+    <main class="flex-1 flex flex-col items-center justify-center max-w-4xl mx-auto w-full px-2 md:px-0">
+        <!-- Initial Upload Section -->
+        <section id="initialSection" class="flex flex-col items-center justify-center w-full">
+            <input type="file" id="imageInput" accept="image/png, image/jpeg" multiple class="hidden">
+            <button id="uploadBtn" class="bg-[#009b6c] hover:bg-[#007456] text-white font-bold px-8 py-4 rounded-xl shadow-lg text-lg transition mb-2">Upload Images</button>
+            <p class="text-sm text-[#222] mt-2">JPG or PNG, up to 10 images, max 10MB total.</p>
+        </section>
+        <!-- Main App Section (hidden initially) -->
+        <section id="appSection" class="w-full flex flex-col md:flex-row gap-6 mt-10 hidden">
+            <!-- Left Sidebar: Thumbnails -->
+            <aside id="sidebar" class="w-full md:w-1/3 bg-[#f6f6f6] rounded-2xl p-4 shadow-xl flex flex-col min-h-[350px]">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="font-semibold text-[#222] text-lg">Your Images</span>
+                    <button id="addMoreBtn" class="text-xs text-[#009b6c] hover:underline">+ Add More</button>
+                </div>
+                <ul id="imageList" class="flex flex-col gap-3"></ul>
+            </aside>
+            <!-- Right Panel: PDF Options -->
+            <div class="flex-1 bg-[#f6f6f6] rounded-2xl p-6 shadow-xl flex flex-col min-h-[350px]">
+                <h2 class="text-xl font-bold text-[#222] mb-4">PDF Options</h2>
+                <form id="optionsForm" class="flex flex-col gap-5 flex-1">
                     <div>
                         <label class="block font-semibold text-[#222] mb-1">Page Orientation</label>
-                        <div class="flex gap-4">
+                        <div class="flex gap-6">
                             <label class="inline-flex items-center">
                                 <input type="radio" name="orientation" value="Portrait" checked class="form-radio text-[#009b6c]">
                                 <span class="ml-2">Portrait</span>
@@ -50,7 +50,7 @@
                     </div>
                     <div>
                         <label class="block font-semibold text-[#222] mb-1">Page Size</label>
-                        <select name="page_size" id="pageSize" class="w-full rounded border border-gray-300 px-2 py-1">
+                        <select name="page_size" id="pageSize" class="w-full rounded border border-gray-300 px-2 py-2">
                             <option value="A4">A4</option>
                             <option value="Letter">Letter</option>
                             <option value="Custom">Custom</option>
@@ -62,7 +62,7 @@
                     </div>
                     <div>
                         <label class="block font-semibold text-[#222] mb-1">Margin</label>
-                        <select name="margin" class="w-full rounded border border-gray-300 px-2 py-1">
+                        <select name="margin" class="w-full rounded border border-gray-300 px-2 py-2">
                             <option value="None">None</option>
                             <option value="Small">Small</option>
                             <option value="Medium" selected>Medium</option>
@@ -70,23 +70,22 @@
                         </select>
                     </div>
                     <div class="flex-1"></div>
-                    <button id="convertBtn" type="submit" class="bg-[#009b6c] hover:bg-[#007456] text-white font-semibold px-6 py-3 rounded-lg shadow transition w-full mt-4">Convert to PDF</button>
+                    <button id="convertBtn" type="submit" class="bg-[#009b6c] hover:bg-[#007456] text-white font-bold px-8 py-3 rounded-xl shadow-lg transition w-full mt-4">Convert PDF</button>
                 </form>
             </div>
-            <!-- Loader -->
-            <div id="loader" class="hidden absolute inset-0 flex items-center justify-center bg-white bg-opacity-80 z-40">
-                <div class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-16 w-16"></div>
-            </div>
-            <!-- Success Message -->
-            <div id="successPanel" class="hidden flex flex-col items-center justify-center h-full">
-                <h2 class="text-2xl font-bold text-[#009b6c] mb-2">Your PDF is Ready!</h2>
-                <p class="text-[#222] mb-4">Download your high-quality PDF below.</p>
-                <a id="downloadPdfBtn" href="#" class="bg-[#009b6c] hover:bg-[#007456] text-white font-semibold px-6 py-3 rounded-lg shadow transition">Download PDF</a>
-            </div>
+        </section>
+        <!-- Loader Section (hidden initially) -->
+        <section id="loaderSection" class="hidden flex flex-col items-center justify-center w-full py-20">
+            <div class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-20 w-20 mb-6"></div>
+            <p class="text-xl font-semibold text-[#222]">Your PDF is almost ready...</p>
+        </section>
+        <!-- Success Section (hidden initially) -->
+        <section id="successSection" class="hidden flex flex-col items-center justify-center w-full py-20">
+            <h2 class="text-3xl font-extrabold text-[#009b6c] mb-3">Hurray! Your PDF is ready to download</h2>
+            <a id="downloadPdfBtn" href="#" class="bg-[#009b6c] hover:bg-[#007456] text-white font-bold px-8 py-4 rounded-xl shadow-lg text-lg transition">Download PDF</a>
         </section>
     </main>
-    <!-- Footer -->
-    <footer class="w-full bg-[#f6f6f6] text-[#222] text-center py-4 mt-auto">
+    <footer class="w-full bg-[#f6f6f6] text-[#222] text-center py-4 mt-auto text-sm">
         © 2025 imagepdfconverter.in. All rights reserved.
     </footer>
     <script src="/static/js/main.js"></script>

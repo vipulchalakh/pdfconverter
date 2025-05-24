@@ -4,7 +4,7 @@
 
 /* Custom button color */
 .btn-green {
-  @apply bg-[#009b6c] hover:bg-[#007456] text-white font-semibold px-6 py-3 rounded-lg shadow transition;
+  @apply bg-[#009b6c] hover:bg-[#007456] text-white font-bold px-8 py-4 rounded-xl shadow-lg text-lg transition;
 }
 
 /* Loader spinner */
@@ -24,4 +24,8 @@
 }
 #imageList::-webkit-scrollbar {
   display: none;
+}
+
+input[type="file"]:focus {
+  outline: none;
 } 
